@@ -25,9 +25,11 @@ export function SearchBox() {
     handleSearch,
   } = useStockSearch()
 
-  const handleSelect = (result: SearchResult) => {
-    setSelected(result)
-    router.push(`/stock/${result.symbol}`)
+  const handleSelect = (result: SearchResult | null) => {
+    if (result) {
+      setSelected(result)
+      router.push(`/stock/${result.symbol}`)
+    }
   }
 
   return (
