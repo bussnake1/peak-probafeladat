@@ -1,43 +1,22 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { PriceChart } from './PriceChart'
-import { GlobalQuote } from '@/types/stock'
+import { useStockDetails } from '@/hooks/useStockDetails'
 
 export function StockDetails({ symbol }: { symbol: string }) {
-  const [stockData, setStockData] = useState<GlobalQuote | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchStockData = async () => {
-      try {
-        const response = await fetch(`/api/stock/${symbol}`)
-        const data = await response.json()
-
-        if (data["Error Message"]) {
-          setError(data["Error Message"])
-          return
-        }
-
-        setStockData(data)
-      } catch {
-        setError('Failed to fetch stock data')
-      }
-    }
-
-    fetchStockData()
-  }, [symbol])
+  const { stockData, error, loading, formatters } = useStockDetails(symbol)
+  const { formatPrice, formatVolume, getChangeStatus } = formatters
 
   if (error) {
     return <div className="text-red-500">{error}</div>
   }
 
-  if (!stockData) {
+  if (loading || !stockData) {
     return <div>Loading...</div>
   }
 
   const quote = stockData["Global Quote"]
-  const changeIsPositive = parseFloat(quote["09. change"]) >= 0
+  const changeIsPositive = getChangeStatus(quote["09. change"])
 
   return (
     <div className="space-y-8">
@@ -45,7 +24,7 @@ export function StockDetails({ symbol }: { symbol: string }) {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">{quote["01. symbol"]}</h2>
           <div className={`text-lg font-semibold ${changeIsPositive ? 'text-green-500' : 'text-red-500'}`}>
-            ${quote["05. price"]}
+            {formatPrice(quote["05. price"])}
             <span className="ml-2">
               {changeIsPositive ? '+' : ''}{quote["09. change"]} ({quote["10. change percent"]})
             </span>
@@ -55,23 +34,23 @@ export function StockDetails({ symbol }: { symbol: string }) {
         <div className="grid grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
           <div>
             <p>Open</p>
-            <p className="font-medium">${quote["02. open"]}</p>
+            <p className="font-medium">{formatPrice(quote["02. open"])}</p>
           </div>
           <div>
             <p>Previous Close</p>
-            <p className="font-medium">${quote["08. previous close"]}</p>
+            <p className="font-medium">{formatPrice(quote["08. previous close"])}</p>
           </div>
           <div>
             <p>High</p>
-            <p className="font-medium">${quote["03. high"]}</p>
+            <p className="font-medium">{formatPrice(quote["03. high"])}</p>
           </div>
           <div>
             <p>Low</p>
-            <p className="font-medium">${quote["04. low"]}</p>
+            <p className="font-medium">{formatPrice(quote["04. low"])}</p>
           </div>
           <div>
             <p>Volume</p>
-            <p className="font-medium">{parseInt(quote["06. volume"]).toLocaleString()}</p>
+            <p className="font-medium">{formatVolume(quote["06. volume"])}</p>
           </div>
           <div>
             <p>Latest Trading Day</p>

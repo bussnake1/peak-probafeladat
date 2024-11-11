@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import {
   LineChart,
   Line,
@@ -10,58 +9,18 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts'
-import { ChartData, TimeSeriesResponse } from '@/types/stock'
+import { useStockHistory } from '@/hooks/useStockHistory'
 
 export function PriceChart({ symbol }: { symbol: string }) {
-  const [data, setData] = useState<ChartData[]>([])
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchHistoricalData = async () => {
-      try {
-        const response = await fetch(`/api/stock/${symbol}/history`)
-        const result = await response.json()
-
-        if (result["Error Message"]) {
-          setError(result["Error Message"])
-          return
-        }
-
-        // Transform the data for the chart
-        const timeSeriesData = (result as TimeSeriesResponse)["Time Series (Daily)"]
-        const chartData = Object.entries(timeSeriesData)
-          .map(([date, values]) => ({
-            date,
-            price: parseFloat(values["4. close"])
-          }))
-          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-
-        setData(chartData)
-      } catch {
-        setError('Failed to fetch historical data')
-      }
-    }
-
-    fetchHistoricalData()
-  }, [symbol])
+  const { data, error, loading, formatters } = useStockHistory(symbol)
+  const { formatDate, formatPrice } = formatters
 
   if (error) {
     return <div className="text-red-500">{error}</div>
   }
 
-  if (data.length === 0) {
+  if (loading || data.length === 0) {
     return <div>Loading chart data...</div>
-  }
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  const formatPrice = (price: number) => {
-    return `$${price.toFixed(2)}`
   }
 
   return (
