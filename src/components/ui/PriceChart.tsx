@@ -10,25 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts'
-
-type ChartData = {
-  date: string
-  price: number
-}
-
-type DailyValue = {
-  "1. open": string
-  "2. high": string
-  "3. low": string
-  "4. close": string
-  "5. volume": string
-}
-
-type ApiResponse = {
-  "Time Series (Daily)": {
-    [key: string]: DailyValue
-  }
-}
+import { ChartData, TimeSeriesResponse } from '@/types/stock'
 
 export function PriceChart({ symbol }: { symbol: string }) {
   const [data, setData] = useState<ChartData[]>([])
@@ -46,7 +28,7 @@ export function PriceChart({ symbol }: { symbol: string }) {
         }
 
         // Transform the data for the chart
-        const timeSeriesData = (result as ApiResponse)["Time Series (Daily)"]
+        const timeSeriesData = (result as TimeSeriesResponse)["Time Series (Daily)"]
         const chartData = Object.entries(timeSeriesData)
           .map(([date, values]) => ({
             date,

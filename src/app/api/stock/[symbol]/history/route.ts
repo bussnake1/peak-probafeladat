@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { TimeSeriesResponse } from '@/types/stock';
 
 export async function GET(
   request: Request,
@@ -15,7 +16,8 @@ export async function GET(
 
     try {
       const stockData = await import(`@/app/mock/timeSeriesDaily/${symbol}.js`);
-      return NextResponse.json(stockData.mockData.timeSeriesDaily[symbol]);
+      const timeSeriesData = stockData.mockData.timeSeriesDaily[symbol] as TimeSeriesResponse;
+      return NextResponse.json(timeSeriesData);
     } catch {
       return NextResponse.json({
         "Error Message": "No historical data found for the provided symbol."
