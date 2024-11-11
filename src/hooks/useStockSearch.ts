@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { SearchResult, StockMatch } from '@/types/search'
 import debounce from 'lodash/debounce'
 
@@ -8,11 +8,11 @@ export function useStockSearch() {
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<SearchResult[]>([])
 
-  const fetchResults = async (searchQuery: string) => {
+  const fetchResults = useCallback(async (searchQuery: string) => {
     try {
       const response = await fetch(`/api/symbol-search?keywords=${encodeURIComponent(searchQuery)}`)
       const data = await response.json()
-      
+  
       if (data.bestMatches) {
         const formattedResults = data.bestMatches
           .map((match: StockMatch) => ({
@@ -28,12 +28,19 @@ export function useStockSearch() {
       setResults([])
       setLoading(false)
     }
-  }
-
-  const debouncedFetch = useCallback(
-    debounce(fetchResults, 300),
-    []
+  }, [])
+  
+  const debouncedFetch = useMemo(
+    () => debounce(fetchResults, 300),
+    [fetchResults]
   )
+
+  // cancel the debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedFetch.cancel()
+    }
+  }, [debouncedFetch])
 
   const handleSearch = (searchQuery: string) => {
     console.log('handleSearch', searchQuery)
