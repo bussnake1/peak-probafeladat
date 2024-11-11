@@ -8,14 +8,19 @@ type CacheOptions = {
 }
 
 const DEFAULT_TTL = 5 * 60 * 1000 // 5 minutes
+const CLEANUP_INTERVAL = 15 * 60 * 1000 // 15 minutes
 
 class Cache {
   private memoryCache: Map<string, CacheItem<any>>
   private prefix: string
+  private cleanupInterval: NodeJS.Timeout | null
 
   constructor(prefix: string = 'stock_app_') {
     this.memoryCache = new Map()
     this.prefix = prefix
+    this.cleanupInterval = null
+    this.startCleanupInterval()
+    this.cleanupExpiredItems() // Initial cleanup on instantiation
   }
 
   private getStorageKey(key: string): string {
@@ -24,6 +29,50 @@ class Cache {
 
   private isExpired(timestamp: number, ttl: number): boolean {
     return Date.now() - timestamp > ttl
+  }
+
+  private startCleanupInterval(): void {
+    // Clear any existing interval
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval)
+    }
+
+    // Start new cleanup interval
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupExpiredItems()
+    }, CLEANUP_INTERVAL)
+  }
+
+  private cleanupExpiredItems(): void {
+    // Cleanup memory cache
+    for (const [key, item] of this.memoryCache.entries()) {
+      if (this.isExpired(item.timestamp, DEFAULT_TTL)) {
+        this.memoryCache.delete(key)
+      }
+    }
+
+    // Cleanup localStorage
+    try {
+      const storageKeys = Object.keys(localStorage)
+        .filter(key => key.startsWith(this.prefix))
+
+      storageKeys.forEach(key => {
+        const item = localStorage.getItem(key)
+        if (item) {
+          try {
+            const parsed: CacheItem<any> = JSON.parse(item)
+            if (this.isExpired(parsed.timestamp, DEFAULT_TTL)) {
+              localStorage.removeItem(key)
+            }
+          } catch {
+            // If we can't parse the item, remove it
+            localStorage.removeItem(key)
+          }
+        }
+      })
+    } catch (error) {
+      console.warn('Failed to cleanup localStorage:', error)
+    }
   }
 
   set<T>(key: string, data: T, options: CacheOptions = { ttl: DEFAULT_TTL }): void {
@@ -62,6 +111,9 @@ class Cache {
           // Update memory cache
           this.memoryCache.set(key, item)
           return item.data
+        } else {
+          // Remove expired item from localStorage
+          localStorage.removeItem(this.getStorageKey(key))
         }
       }
     } catch (error) {
@@ -90,6 +142,21 @@ class Cache {
       console.warn('Failed to clear localStorage:', error)
     }
   }
+
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval)
+      this.cleanupInterval = null
+    }
+    this.clear()
+  }
 }
 
 export const cache = new Cache()
+
+// Cleanup on window unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('unload', () => {
+    cache.destroy()
+  })
+}
