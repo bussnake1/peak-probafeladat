@@ -15,7 +15,7 @@ export function useStockDetails(symbol: string) {
         const cacheKey = `stock_details_${symbol}`
         
         // Try to get from cache first
-        const cachedData = cache.get<GlobalQuote>(cacheKey, { ttl: STOCK_DETAILS_TTL })
+        const cachedData = cache.get<GlobalQuote>(cacheKey)
         if (cachedData) {
           setStockData(cachedData)
           setLoading(false)

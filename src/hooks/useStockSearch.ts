@@ -16,7 +16,7 @@ export function useStockSearch() {
       const cacheKey = `search_${searchQuery}`
       
       // Try to get from cache first
-      const cachedResults = cache.get<SearchResult[]>(cacheKey, { ttl: SEARCH_TTL })
+      const cachedResults = cache.get<SearchResult[]>(cacheKey)
       if (cachedResults) {
         setResults(cachedResults)
         setLoading(false)

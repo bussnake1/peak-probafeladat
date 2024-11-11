@@ -15,7 +15,7 @@ export function useStockHistory(symbol: string) {
         const cacheKey = `stock_history_${symbol}`
         
         // Try to get from cache first
-        const cachedData = cache.get<ChartData[]>(cacheKey, { ttl: HISTORY_TTL })
+        const cachedData = cache.get<ChartData[]>(cacheKey)
         if (cachedData) {
           setData(cachedData)
           setLoading(false)

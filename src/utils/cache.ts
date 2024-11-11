@@ -1,17 +1,20 @@
 type CacheItem<T> = {
   data: T
   timestamp: number
+  ttl: number
 }
 
 type CacheOptions = {
   ttl: number // Time to live in milliseconds
 }
 
+type CacheValue = string | number | boolean | object | null
+
 const DEFAULT_TTL = 5 * 60 * 1000 // 5 minutes
 const CLEANUP_INTERVAL = 15 * 60 * 1000 // 15 minutes
 
 class Cache {
-  private memoryCache: Map<string, CacheItem<any>>
+  private memoryCache: Map<string, CacheItem<CacheValue>>
   private prefix: string
   private cleanupInterval: NodeJS.Timeout | null
 
@@ -27,8 +30,8 @@ class Cache {
     return `${this.prefix}${key}`
   }
 
-  private isExpired(timestamp: number, ttl: number): boolean {
-    return Date.now() - timestamp > ttl
+  private isExpired(item: CacheItem<unknown>): boolean {
+    return Date.now() - item.timestamp > item.ttl
   }
 
   private startCleanupInterval(): void {
@@ -46,7 +49,7 @@ class Cache {
   private cleanupExpiredItems(): void {
     // Cleanup memory cache
     for (const [key, item] of this.memoryCache.entries()) {
-      if (this.isExpired(item.timestamp, DEFAULT_TTL)) {
+      if (this.isExpired(item)) {
         this.memoryCache.delete(key)
       }
     }
@@ -60,8 +63,8 @@ class Cache {
         const item = localStorage.getItem(key)
         if (item) {
           try {
-            const parsed: CacheItem<any> = JSON.parse(item)
-            if (this.isExpired(parsed.timestamp, DEFAULT_TTL)) {
+            const parsed: CacheItem<CacheValue> = JSON.parse(item)
+            if (this.isExpired(parsed)) {
               localStorage.removeItem(key)
             }
           } catch {
@@ -75,14 +78,15 @@ class Cache {
     }
   }
 
-  set<T>(key: string, data: T, options: CacheOptions = { ttl: DEFAULT_TTL }): void {
+  set<T extends CacheValue>(key: string, data: T, options: CacheOptions = { ttl: DEFAULT_TTL }): void {
     const item: CacheItem<T> = {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      ttl: options.ttl
     }
 
     // Set in memory
-    this.memoryCache.set(key, item)
+    this.memoryCache.set(key, item as CacheItem<CacheValue>)
 
     // Set in localStorage
     try {
@@ -95,11 +99,11 @@ class Cache {
     }
   }
 
-  get<T>(key: string, options: CacheOptions = { ttl: DEFAULT_TTL }): T | null {
+  get<T extends CacheValue>(key: string): T | null {
     // Try memory cache first
     const memoryItem = this.memoryCache.get(key)
-    if (memoryItem && !this.isExpired(memoryItem.timestamp, options.ttl)) {
-      return memoryItem.data
+    if (memoryItem && !this.isExpired(memoryItem)) {
+      return memoryItem.data as T
     }
 
     // Try localStorage if not in memory or expired
@@ -107,9 +111,9 @@ class Cache {
       const storageItem = localStorage.getItem(this.getStorageKey(key))
       if (storageItem) {
         const item: CacheItem<T> = JSON.parse(storageItem)
-        if (!this.isExpired(item.timestamp, options.ttl)) {
+        if (!this.isExpired(item)) {
           // Update memory cache
-          this.memoryCache.set(key, item)
+          this.memoryCache.set(key, item as CacheItem<CacheValue>)
           return item.data
         } else {
           // Remove expired item from localStorage
