@@ -1,6 +1,7 @@
 'use client'
 
 import { Fragment } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Combobox,
   ComboboxInput,
@@ -13,6 +14,7 @@ import { SearchResult } from '@/types/search'
 import { SearchResultItem } from './SearchResultItem'
 
 export function SearchBox() {
+  const router = useRouter()
   const {
     selected,
     setSelected,
@@ -23,9 +25,14 @@ export function SearchBox() {
     handleSearch,
   } = useStockSearch()
 
+  const handleSelect = (result: SearchResult) => {
+    setSelected(result)
+    router.push(`/stock/${result.symbol}`)
+  }
+
   return (
     <div className="w-full max-w-xl mx-auto">
-      <Combobox value={selected} onChange={setSelected}>
+      <Combobox value={selected} onChange={handleSelect}>
         <div className="relative mt-1">
           <ComboboxInput
             className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
