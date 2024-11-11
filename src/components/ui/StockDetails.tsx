@@ -55,7 +55,7 @@ export function StockDetails({ symbol }: { symbol: string }) {
 
   return (
     <div className="space-y-8">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">{quote["01. symbol"]}</h2>
           <div className={`text-lg font-semibold ${changeIsPositive ? 'text-green-500' : 'text-red-500'}`}>
@@ -66,35 +66,35 @@ export function StockDetails({ symbol }: { symbol: string }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
           <div>
-            <p className="text-gray-600">Open</p>
+            <p>Open</p>
             <p className="font-medium">${quote["02. open"]}</p>
           </div>
           <div>
-            <p className="text-gray-600">Previous Close</p>
+            <p>Previous Close</p>
             <p className="font-medium">${quote["08. previous close"]}</p>
           </div>
           <div>
-            <p className="text-gray-600">High</p>
+            <p>High</p>
             <p className="font-medium">${quote["03. high"]}</p>
           </div>
           <div>
-            <p className="text-gray-600">Low</p>
+            <p>Low</p>
             <p className="font-medium">${quote["04. low"]}</p>
           </div>
           <div>
-            <p className="text-gray-600">Volume</p>
+            <p>Volume</p>
             <p className="font-medium">{parseInt(quote["06. volume"]).toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-gray-600">Latest Trading Day</p>
+            <p>Latest Trading Day</p>
             <p className="font-medium">{quote["07. latest trading day"]}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg pb-20 pt-6 px-12">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg pb-20 pt-6 px-12">
         <PriceChart symbol={symbol} />
       </div>
     </div>
