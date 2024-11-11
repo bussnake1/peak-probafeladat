@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { PriceChart } from './PriceChart'
 
 type GlobalQuote = {
   "Global Quote": {
@@ -91,6 +92,10 @@ export function StockDetails({ symbol }: { symbol: string }) {
             <p className="font-medium">{quote["07. latest trading day"]}</p>
           </div>
         </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-lg pb-20 pt-6 px-12">
+        <PriceChart symbol={symbol} />
       </div>
     </div>
   )
