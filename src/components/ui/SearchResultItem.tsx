@@ -13,10 +13,10 @@ export function SearchResultItem({ result, focus }: SearchResultItemProps) {
       }`}
     >
       <div className="flex items-center">
-        <span className={`font-medium ${focus ? 'text-white' : 'text-gray-900'}`}>
+        <span className={`font-medium ${focus ? 'text-white' : 'text-gray-900 dark:text-gray-300'}`}>
           {result.symbol}
         </span>
-        <span className={`ml-2 ${focus ? 'text-white' : 'text-gray-500'}`}>
+        <span className={`ml-2 ${focus ? 'text-white' : 'text-gray-500 dark:text-gray-300'}`}>
           {result.name}
         </span>
       </div>
