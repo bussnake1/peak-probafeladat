@@ -1,37 +1,43 @@
-import mockData from '../../../mock/data';
-import { NextResponse } from 'next/server';
-import { GlobalQuote } from '@/types/stock';
+import mockData from '../../../mock/data'
+import { type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+import { GlobalQuote } from '@/types/stock'
 
 type GlobalQuotes = {
-  [key: string]: GlobalQuote;
+  [key: string]: GlobalQuote
 }
 
+type Params = Promise<{ symbol: string }>
+
 export async function GET(
-  request: Request,
-  { params }: { params: { symbol: string } }
+  request: NextRequest,
+  { params }: { params: Params }
 ) {
   try {
-    const { symbol } = params;
+    const { symbol } = await params
 
     if (!symbol) {
-      return NextResponse.json({
-        "Error Message": "The symbol parameter is invalid or missing."
-      }, { status: 400 });
+      return new NextResponse(
+        JSON.stringify({ "Error Message": "The symbol parameter is invalid or missing." }),
+        { status: 400 }
+      )
     }
 
-    const stockData = (mockData.globalQuotes as GlobalQuotes)[symbol.toUpperCase()];
+    const stockData = (mockData.globalQuotes as GlobalQuotes)[symbol.toUpperCase()]
 
     if (!stockData) {
-      return NextResponse.json({
-        "Error Message": "No data found for the provided symbol."
-      }, { status: 404 });
+      return new NextResponse(
+        JSON.stringify({ "Error Message": "No data found for the provided symbol." }),
+        { status: 404 }
+      )
     }
 
-    return NextResponse.json(stockData);
+    return NextResponse.json(stockData)
   } catch (error) {
-    console.error('Stock data error:', error);
-    return NextResponse.json({
-      "Error Message": "An internal error occurred. Please try again later."
-    }, { status: 500 });
+    console.error('Stock data error:', error)
+    return new NextResponse(
+      JSON.stringify({ "Error Message": "An internal error occurred. Please try again later." }),
+      { status: 500 }
+    )
   }
 }

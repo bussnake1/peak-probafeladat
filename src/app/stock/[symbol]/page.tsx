@@ -2,13 +2,13 @@ import Link from 'next/link'
 import { StockDetails } from '@/components/ui/StockDetails'
 import { notFound } from 'next/navigation'
 
-type Props = {
-  params: {
-    symbol: string
-  }
-}
+type Params = Promise<{ symbol: string }>
 
-export default async function StockDetailPage({ params }: Props) {
+export default async function StockDetailPage({ 
+  params 
+}: { 
+  params: Params 
+}) {
   const { symbol } = await params
 
   if (!symbol) {
