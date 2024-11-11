@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { SearchResult, StockMatch } from '@/types/search'
+import { cache } from '@/utils/cache'
 import debounce from 'lodash/debounce'
+
+const SEARCH_TTL = 10 * 1000 // 10 seconds for search results
 
 export function useStockSearch() {
   const [selected, setSelected] = useState<SearchResult | null>(null)
@@ -10,6 +13,16 @@ export function useStockSearch() {
 
   const fetchResults = useCallback(async (searchQuery: string) => {
     try {
+      const cacheKey = `search_${searchQuery}`
+      
+      // Try to get from cache first
+      const cachedResults = cache.get<SearchResult[]>(cacheKey, { ttl: SEARCH_TTL })
+      if (cachedResults) {
+        setResults(cachedResults)
+        setLoading(false)
+        return
+      }
+
       const response = await fetch(`/api/symbol-search?keywords=${encodeURIComponent(searchQuery)}`)
       const data = await response.json()
   
@@ -20,6 +33,9 @@ export function useStockSearch() {
             name: match['2. name']
           }))
           .slice(0, 20)
+
+        // Store in cache and update state
+        cache.set(cacheKey, formattedResults, { ttl: SEARCH_TTL })
         setResults(formattedResults)
       }
       setLoading(false)
@@ -43,7 +59,6 @@ export function useStockSearch() {
   }, [debouncedFetch])
 
   const handleSearch = (searchQuery: string) => {
-    console.log('handleSearch', searchQuery)
     setQuery(searchQuery)
     setLoading(true)
 
