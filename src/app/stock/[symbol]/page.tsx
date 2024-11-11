@@ -8,8 +8,8 @@ type Props = {
   }
 }
 
-export default function StockDetailPage({ params }: Props) {
-  const { symbol } = params
+export default async function StockDetailPage({ params }: Props) {
+  const { symbol } = await params
 
   if (!symbol) {
     notFound()
