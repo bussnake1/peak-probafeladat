@@ -16,7 +16,7 @@ export default async function StockDetailPage({
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
+    <main className="flex min-h-screen flex-col items-center px-2 py-12 sm:p-6 lg:p-24">
       <div className="w-full max-w-5xl">
         <div className="mb-6">
           <Link 

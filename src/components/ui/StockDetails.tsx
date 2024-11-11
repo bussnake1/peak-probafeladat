@@ -59,7 +59,7 @@ export function StockDetails({ symbol }: { symbol: string }) {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg pb-20 pt-6 px-12">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg pb-20 pt-6 px-2 sm:px-4 lg:px-12">
         <PriceChart symbol={symbol} />
       </div>
     </div>
