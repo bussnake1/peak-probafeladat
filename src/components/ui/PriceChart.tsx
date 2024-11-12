@@ -9,18 +9,27 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts'
-import { useStockHistory } from '@/hooks/useStockHistory'
+import { ChartData } from '@/types/stock'
 
-export function PriceChart({ symbol }: { symbol: string }) {
-  const { data, error, loading, formatters } = useStockHistory(symbol)
-  const { formatDate, formatPrice } = formatters
+type Props = {
+  data: ChartData[]
+  error?: string | null
+}
 
+export function PriceChart({ data, error }: Props) {
   if (error) {
     return <div className="text-red-500">{error}</div>
   }
 
-  if (loading || data.length === 0) {
-    return <div>Loading chart data...</div>
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  const formatPrice = (price: number) => {
+    return `$${price.toFixed(2)}`
   }
 
   return (
