@@ -31,6 +31,13 @@ export async function GET(request: Request) {
       }, { status: 400 })
     }
 
+    // Simulate an error for testing when searching for "error"
+    if (keywords.toLowerCase() === 'error') {
+      return NextResponse.json({
+        "Error Message": "API rate limit exceeded. Please try again later."
+      }, { status: 429 })
+    }
+
     if (useMockData) {
       const results = mockData.symbolSearch.bestMatches.filter(match => 
         match["1. symbol"].toLowerCase().includes(keywords.toLowerCase()) ||

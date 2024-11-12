@@ -8,15 +8,18 @@ export function useStockSearch() {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<SearchResult[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   const fetchResults = useCallback(async (searchQuery: string) => {
     try {
       setLoading(true)
+      setError(null)
       const searchResults = await stockAPI.searchStocks(searchQuery)
       setResults(searchResults)
     } catch (error) {
       console.error('Search error:', error)
       setResults([])
+      setError(error instanceof Error ? error.message : String(error))
     } finally {
       setLoading(false)
     }
@@ -39,6 +42,7 @@ export function useStockSearch() {
 
     if (searchQuery.length === 0) {
       setResults([])
+      setError(null)
       return
     }
 
@@ -50,6 +54,7 @@ export function useStockSearch() {
     setSelected,
     query,
     loading,
+    error,
     setQuery,
     results,
     handleSearch,

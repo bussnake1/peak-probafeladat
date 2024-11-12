@@ -85,6 +85,14 @@ class StockAPI {
     const response = await fetch(`${this.getBaseUrl()}${API_ENDPOINTS.SEARCH(query)}`)
     const data = await response.json()
 
+    if (!response.ok) {
+      throw new Error(data["Error Message"] || response.statusText)
+    }
+
+    if (data["Error Message"]) {
+      throw new Error(data["Error Message"])
+    }
+
     if (!data.bestMatches) {
       return []
     }
