@@ -1,21 +1,24 @@
 import { Suspense } from 'react'
-import { stockAPI } from '@/services/api'
 import { StockDetails } from '@/components/ui/StockDetails'
+import { StockDetailsWithFavorites } from '@/components/ui/StockDetailsWithFavorites'
 import { StockDetailsSkeleton } from '@/components/ui/Skeletons'
+import { stockAPI } from '@/services/api'
 
 async function StockDetailsContent({ symbol }: { symbol: string }) {
   try {
     const stockData = await stockAPI.getStockDetails(symbol)
-    return <StockDetails data={stockData} />
+    return <StockDetailsWithFavorites data={stockData} symbol={symbol} />
   } catch (error) {
-    return <StockDetails 
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch stock data'
+    return <StockDetailsWithFavorites 
       data={null} 
-      error={error instanceof Error ? error.message : 'Failed to fetch stock data'} 
+      error={errorMessage}
+      symbol={symbol}
     />
   }
 }
 
-export function StockDetailsServer({ symbol }: { symbol: string }) {
+export function StockDetailsWithFavoritesServer({ symbol }: { symbol: string }) {
   return (
     <Suspense fallback={<StockDetailsSkeleton />}>
       <StockDetailsContent symbol={symbol} />
