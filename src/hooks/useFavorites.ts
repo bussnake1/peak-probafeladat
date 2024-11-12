@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
-import { LocalStorage } from '@/utils/cache/local-storage'
-import { CacheItem } from '@/utils/cache/types'
+import { persistentCache } from '@/utils/cache/factory'
 
-const storage = new LocalStorage()
 const FAVORITES_KEY = 'favorites'
 const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000
 
@@ -10,28 +8,22 @@ export const useFavorites = () => {
   const [favorites, setFavorites] = useState<string[]>([])
 
   useEffect(() => {
-    const storedFavorites = storage.get<string[]>(FAVORITES_KEY)
+    const storedFavorites = persistentCache.get<string[]>(FAVORITES_KEY)
     if (storedFavorites) {
       setFavorites(storedFavorites)
     }
   }, [])
 
-  const createCacheItem = (data: string[]): CacheItem<string[]> => ({
-    data,
-    timestamp: Date.now(),
-    ttl: ONE_YEAR_MS
-  })
-
   const addFavorite = (symbol: string) => {
     const newFavorites = [...favorites, symbol]
     setFavorites(newFavorites)
-    storage.set(FAVORITES_KEY, createCacheItem(newFavorites))
+    persistentCache.set(FAVORITES_KEY, newFavorites, { ttl: ONE_YEAR_MS })
   }
 
   const removeFavorite = (symbol: string) => {
     const newFavorites = favorites.filter(s => s !== symbol)
     setFavorites(newFavorites)
-    storage.set(FAVORITES_KEY, createCacheItem(newFavorites))
+    persistentCache.set(FAVORITES_KEY, newFavorites, { ttl: ONE_YEAR_MS })
   }
 
   const isFavorite = (symbol: string) => favorites.includes(symbol)
