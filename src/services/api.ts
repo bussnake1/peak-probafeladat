@@ -1,7 +1,9 @@
 import { GlobalQuote, ChartData, TimeSeriesResponse } from '@/types/stock'
 import { SearchResult, StockMatch } from '@/types/search'
 import { cache } from '@/utils/cache'
-import { CACHE_TTL, CACHE_PREFIX, API_ENDPOINTS, MAX_SEARCH_RESULTS } from '@/constants'
+import { CACHE_TTL, CACHE_PREFIX } from '@/constants'
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
 class StockAPI {
   private static instance: StockAPI
@@ -15,6 +17,10 @@ class StockAPI {
     return StockAPI.instance
   }
 
+  private getBaseUrl() {
+    return typeof window === 'undefined' ? BASE_URL : ''
+  }
+
   async getStockDetails(symbol: string): Promise<GlobalQuote> {
     const cacheKey = `${CACHE_PREFIX.STOCK_DETAILS}${symbol}`
     
@@ -25,7 +31,7 @@ class StockAPI {
     }
 
     // If not in cache, fetch from API
-    const response = await fetch(API_ENDPOINTS.STOCK_DETAILS(symbol))
+    const response = await fetch(`${this.getBaseUrl()}/api/stock/${symbol}`)
     const data = await response.json()
 
     if (data["Error Message"]) {
@@ -47,7 +53,7 @@ class StockAPI {
     }
 
     // If not in cache, fetch from API
-    const response = await fetch(API_ENDPOINTS.STOCK_HISTORY(symbol))
+    const response = await fetch(`${this.getBaseUrl()}/api/stock/${symbol}/history`)
     const result = await response.json()
 
     if (result["Error Message"]) {
@@ -78,7 +84,7 @@ class StockAPI {
     }
 
     // If not in cache, fetch from API
-    const response = await fetch(API_ENDPOINTS.SEARCH(query))
+    const response = await fetch(`${this.getBaseUrl()}/api/symbol-search?keywords=${encodeURIComponent(query)}`)
     const data = await response.json()
 
     if (!data.bestMatches) {
@@ -90,7 +96,7 @@ class StockAPI {
         symbol: match['1. symbol'],
         name: match['2. name']
       }))
-      .slice(0, MAX_SEARCH_RESULTS)
+      .slice(0, 20)
 
     // Store in cache and return
     cache.set(cacheKey, formattedResults, { ttl: CACHE_TTL.SEARCH })
