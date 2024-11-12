@@ -12,7 +12,7 @@ export async function StockDetailsServer({ symbol }: { symbol: string }) {
     return <StockDetails data={stockData} />
   } catch (error) {
     return <StockDetails 
-      data={null as any} 
+      data={null} 
       error={error instanceof Error ? error.message : 'Failed to fetch stock data'} 
     />
   }

@@ -1,13 +1,17 @@
 import { GlobalQuote } from '@/types/stock'
 
 type Props = {
-  data: GlobalQuote
+  data: GlobalQuote | null
   error?: string | null
 }
 
 export function StockDetails({ data, error }: Props) {
   if (error) {
     return <div className="text-red-500">{error}</div>
+  }
+
+  if (!data) {
+    return <div className="text-red-500">No data available.</div>
   }
 
   const quote = data["Global Quote"]
