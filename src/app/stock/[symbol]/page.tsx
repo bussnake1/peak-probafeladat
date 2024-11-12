@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { StockDetailsServer } from '@/components/server/StockDetailsServer'
+import { StockDetailsWithFavoritesServer } from '@/components/server/StockDetailsWithFavoritesServer'
 import { PriceChartServer } from '@/components/server/PriceChartServer'
 import { notFound } from 'next/navigation'
 
@@ -30,7 +30,7 @@ export default async function StockDetailPage({ params }: PageProps) {
         </div>
         
         <Suspense fallback={<div>Loading stock details...</div>}>
-          <StockDetailsServer symbol={symbol} />
+          <StockDetailsWithFavoritesServer symbol={symbol} />
         </Suspense>
 
         <Suspense fallback={<div className="mt-8">Loading price history...</div>}>
