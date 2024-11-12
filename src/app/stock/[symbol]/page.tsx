@@ -10,8 +10,8 @@ type PageProps = {
   }
 }
 
-export default function StockDetailPage({ params }: PageProps) {
-  const { symbol } = params
+export default async function StockDetailPage({ params }: PageProps) {
+  const { symbol } = await params
 
   if (!symbol) {
     notFound()
