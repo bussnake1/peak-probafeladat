@@ -15,6 +15,8 @@ export interface IStorage {
   set<T extends CacheValue>(key: string, item: CacheItem<T>): void
   remove(key: string): void
   clear(): void
+  isExpired(key: string): boolean
+  clearExpired(): void
 }
 
 export interface ICache {

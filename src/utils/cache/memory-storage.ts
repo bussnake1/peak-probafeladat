@@ -23,4 +23,18 @@ export class MemoryStorage implements IStorage {
   clear(): void {
     this.storage.clear()
   }
+
+  isExpired(key: string): boolean {
+    const item = this.storage.get(key)
+    if (!item) return false
+    return Date.now() - item.timestamp > item.ttl
+  }
+
+  clearExpired(): void {
+    for (const [key] of this.storage) {
+      if (this.isExpired(key)) {
+        this.storage.delete(key)
+      }
+    }
+  }
 }
