@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import { StockDetails } from '@/components/ui/StockDetails'
 import { StockDetailsWithFavorites } from '@/components/ui/StockDetailsWithFavorites'
 import { StockDetailsSkeleton } from '@/components/ui/Skeletons'
 import { stockAPI } from '@/services/api'
