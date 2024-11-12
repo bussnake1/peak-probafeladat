@@ -1,3 +1,5 @@
+import { DEFAULT_CACHE_TTL, CACHE_CLEANUP_INTERVAL } from '@/constants'
+
 type CacheItem<T> = {
   data: T
   timestamp: number
@@ -9,9 +11,6 @@ type CacheOptions = {
 }
 
 type CacheValue = string | number | boolean | object | null
-
-const DEFAULT_TTL = 5 * 60 * 1000 // 5 minutes
-const CLEANUP_INTERVAL = 15 * 60 * 1000 // 15 minutes
 
 class Cache {
   private memoryCache: Map<string, CacheItem<CacheValue>>
@@ -43,7 +42,7 @@ class Cache {
     // Start new cleanup interval
     this.cleanupInterval = setInterval(() => {
       this.cleanupExpiredItems()
-    }, CLEANUP_INTERVAL)
+    }, CACHE_CLEANUP_INTERVAL)
   }
 
   private cleanupExpiredItems(): void {
@@ -78,7 +77,7 @@ class Cache {
     }
   }
 
-  set<T extends CacheValue>(key: string, data: T, options: CacheOptions = { ttl: DEFAULT_TTL }): void {
+  set<T extends CacheValue>(key: string, data: T, options: CacheOptions = { ttl: DEFAULT_CACHE_TTL }): void {
     const item: CacheItem<T> = {
       data,
       timestamp: Date.now(),

@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GlobalQuote } from '@/types/stock'
-import { cache } from '@/utils/cache'
-
-const STOCK_DETAILS_TTL = 30 * 1000 // 30 seconds for real-time data
+import { stockAPI } from '@/services/api'
 
 export function useStockDetails(symbol: string) {
   const [stockData, setStockData] = useState<GlobalQuote | null>(null)
@@ -12,30 +10,10 @@ export function useStockDetails(symbol: string) {
   useEffect(() => {
     const fetchStockData = async () => {
       try {
-        const cacheKey = `stock_details_${symbol}`
-        
-        // Try to get from cache first
-        const cachedData = cache.get<GlobalQuote>(cacheKey)
-        if (cachedData) {
-          setStockData(cachedData)
-          setLoading(false)
-          return
-        }
-
-        // If not in cache, fetch from API
-        const response = await fetch(`/api/stock/${symbol}`)
-        const data = await response.json()
-
-        if (data["Error Message"]) {
-          setError(data["Error Message"])
-          return
-        }
-
-        // Store in cache and update state
-        cache.set(cacheKey, data, { ttl: STOCK_DETAILS_TTL })
+        const data = await stockAPI.getStockDetails(symbol)
         setStockData(data)
-      } catch {
-        setError('Failed to fetch stock data')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch stock data')
       } finally {
         setLoading(false)
       }

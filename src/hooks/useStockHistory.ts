@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
-import { ChartData, TimeSeriesResponse } from '@/types/stock'
-import { cache } from '@/utils/cache'
-
-const HISTORY_TTL = 5 * 60 * 1000 // 5 minutes for historical data
+import { ChartData } from '@/types/stock'
+import { stockAPI } from '@/services/api'
 
 export function useStockHistory(symbol: string) {
   const [data, setData] = useState<ChartData[]>([])
@@ -12,39 +10,10 @@ export function useStockHistory(symbol: string) {
   useEffect(() => {
     const fetchHistoricalData = async () => {
       try {
-        const cacheKey = `stock_history_${symbol}`
-        
-        // Try to get from cache first
-        const cachedData = cache.get<ChartData[]>(cacheKey)
-        if (cachedData) {
-          setData(cachedData)
-          setLoading(false)
-          return
-        }
-
-        // If not in cache, fetch from API
-        const response = await fetch(`/api/stock/${symbol}/history`)
-        const result = await response.json()
-
-        if (result["Error Message"]) {
-          setError(result["Error Message"])
-          return
-        }
-
-        // Transform the data for the chart
-        const timeSeriesData = (result as TimeSeriesResponse)["Time Series (Daily)"]
-        const chartData = Object.entries(timeSeriesData)
-          .map(([date, values]) => ({
-            date,
-            price: parseFloat(values["4. close"])
-          }))
-          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-
-        // Store in cache and update state
-        cache.set(cacheKey, chartData, { ttl: HISTORY_TTL })
+        const chartData = await stockAPI.getStockHistory(symbol)
         setData(chartData)
-      } catch {
-        setError('Failed to fetch historical data')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch historical data')
       } finally {
         setLoading(false)
       }
