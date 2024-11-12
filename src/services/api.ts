@@ -1,9 +1,7 @@
 import { GlobalQuote, ChartData, TimeSeriesResponse } from '@/types/stock'
 import { SearchResult, StockMatch } from '@/types/search'
 import { cache } from '@/utils/cache'
-import { CACHE_TTL, CACHE_PREFIX } from '@/constants'
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+import { CACHE_TTL, CACHE_PREFIX, BASE_URL, API_ENDPOINTS } from '@/constants'
 
 class StockAPI {
   private static instance: StockAPI
@@ -31,7 +29,7 @@ class StockAPI {
     }
 
     // If not in cache, fetch from API
-    const response = await fetch(`${this.getBaseUrl()}/api/stock/${symbol}`)
+    const response = await fetch(`${this.getBaseUrl()}${API_ENDPOINTS.STOCK_DETAILS(symbol)}`)
     const data = await response.json()
 
     if (data["Error Message"]) {
@@ -53,7 +51,7 @@ class StockAPI {
     }
 
     // If not in cache, fetch from API
-    const response = await fetch(`${this.getBaseUrl()}/api/stock/${symbol}/history`)
+    const response = await fetch(`${this.getBaseUrl()}${API_ENDPOINTS.STOCK_HISTORY(symbol)}`)
     const result = await response.json()
 
     if (result["Error Message"]) {
@@ -84,7 +82,7 @@ class StockAPI {
     }
 
     // If not in cache, fetch from API
-    const response = await fetch(`${this.getBaseUrl()}/api/symbol-search?keywords=${encodeURIComponent(query)}`)
+    const response = await fetch(`${this.getBaseUrl()}${API_ENDPOINTS.SEARCH(query)}`)
     const data = await response.json()
 
     if (!data.bestMatches) {
