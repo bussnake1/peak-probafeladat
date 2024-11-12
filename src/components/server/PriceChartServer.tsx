@@ -19,7 +19,7 @@ async function PriceChartContent({ symbol }: { symbol: string }) {
 
 export function PriceChartServer({ symbol }: { symbol: string }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg pb-20 pt-6 px-12">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg pb-20 pt-6 px-2 lg:px-12">
       <Suspense fallback={<PriceChartSkeleton />}>
         <PriceChartContent symbol={symbol} />
       </Suspense>

@@ -28,14 +28,15 @@ export default async function StockDetailPage({ params }: PageProps) {
             ← Back to Search
           </Link>
         </div>
-        
-        <Suspense fallback={<div>Loading stock details...</div>}>
-          <StockDetailsWithFavoritesServer symbol={symbol} />
-        </Suspense>
+        <div className='grid grid-cols-1 gap-4'>
+          <Suspense fallback={<div>Loading stock details...</div>}>
+            <StockDetailsWithFavoritesServer symbol={symbol} />
+          </Suspense>
 
-        <Suspense fallback={<div className="mt-8">Loading price history...</div>}>
-          <PriceChartServer symbol={symbol} />
-        </Suspense>
+          <Suspense fallback={<div className="mt-8">Loading price history...</div>}>
+            <PriceChartServer symbol={symbol} />
+          </Suspense>
+        </div>
       </div>
     </main>
   )
