@@ -8,7 +8,7 @@ export default function FavoritesPage() {
   const { favorites } = useFavorites()
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-24 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Favorite Stocks</h1>
         <Link 
@@ -45,7 +45,8 @@ export default function FavoritesPage() {
 
 function FavoriteStockCard({ symbol }: { symbol: string }) {
   const { stockData, loading, formatters } = useStockDetails(symbol)
-  const { toggleFavorite } = useFavorites()
+  const { toggleFavorite, isFavorite } = useFavorites()
+  const isFav = isFavorite(symbol)
 
   if (loading || !stockData) {
     return (
@@ -80,14 +81,24 @@ function FavoriteStockCard({ symbol }: { symbol: string }) {
           </div>
         </Link>
         <button
-          onClick={(e) => {
-            e.preventDefault()
-            toggleFavorite(symbol)
-          }}
-          className="p-2 text-red-500 hover:text-red-600 transition-colors"
+          onClick={() => toggleFavorite(symbol)}
+          className={`bottom-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-10 ${
+            isFav ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
+          }`}
+          aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-7 w-7" 
+            viewBox="0 0 20 20" 
+            fill={isFav ? 'currentColor' : 'none'}
+            stroke="currentColor"
+          >
+            <path 
+              fillRule="evenodd" 
+              d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" 
+              clipRule="evenodd" 
+            />
           </svg>
         </button>
       </div>
