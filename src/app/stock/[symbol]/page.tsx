@@ -5,9 +5,9 @@ import { PriceChartServer } from '@/components/server/PriceChartServer'
 import { notFound } from 'next/navigation'
 
 type PageProps = {
-  params: {
+  params: Promise<{
     symbol: string
-  }
+  }>
 }
 
 export default async function StockDetailPage({ params }: PageProps) {
